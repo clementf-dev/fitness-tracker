@@ -117,11 +117,17 @@ def search_food_api(request):
     search_service = get_food_search_service()
     results = search_service.search(query, limit=20, local_only=local_only)
     
+    print(f"DEBUG: Search '{query}' -> Local results: {len(results)} (Threshold: 15)")
+    
     # If not enough results and not local_only, try external API
     # Increased threshold (5 -> 15) to force more online results for generic terms
     if not local_only and len(results) < 15:
+        print("DEBUG: Triggering API search...")
         external_results = _search_off_api(query, limit=20 - len(results))
+        print(f"DEBUG: API returned {len(external_results)} results")
         results.extend(external_results)
+    else:
+        print("DEBUG: Skipping API search (enough local results or local_only)")
     
     return JsonResponse({'results': results[:20]})
 
