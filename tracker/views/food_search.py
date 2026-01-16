@@ -118,7 +118,8 @@ def search_food_api(request):
     results = search_service.search(query, limit=20, local_only=local_only)
     
     # If not enough results and not local_only, try external API
-    if not local_only and len(results) < 5:
+    # Increased threshold (5 -> 15) to force more online results for generic terms
+    if not local_only and len(results) < 15:
         external_results = _search_off_api(query, limit=20 - len(results))
         results.extend(external_results)
     
@@ -202,8 +203,10 @@ def _search_off_api(query: str, limit: int = 10) -> list:
             'page_size': limit,
             'fields': 'code,product_name,brands,nutriments,countries,categories,last_modified_t'
         }
+        }
         headers = {'User-Agent': 'FitnessTrackerApp - Version 1.0'}
-        response = requests.get(url, params=params, headers=headers, timeout=5)
+        # Increased timeout to 10s to avoid failure on slow pythonanywhere connection
+        response = requests.get(url, params=params, headers=headers, timeout=10)
         
         if response.status_code == 200:
             data = response.json()
