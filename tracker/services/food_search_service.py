@@ -377,7 +377,8 @@ class FoodSearchService:
         
         # Pour récupérer les résultats sans tuer le serveur (500k+ produits), on réutilise le filtre SQL.
         # Limitation: sensible aux accents sur SQLite. Compromis nécessaire pour la performance.
-        products = OpenFoodFactsProduct.objects.filter(q_filter)[:30]
+        # Filter out 0 calorie items (often poor quality data)
+        products = OpenFoodFactsProduct.objects.filter(q_filter, energy_kcal_100g__gt=0)[:30]
         
         for product in products:
             score = self._calculate_score(

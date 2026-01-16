@@ -241,8 +241,15 @@ def _search_off_api(query: str, limit: int = 10) -> list:
                 nutriments = p.get('nutriments', {})
                 cal = nutriments.get('energy-kcal_100g', 0)
                 if isinstance(cal, str):
-                    cal = 0
+                    try:
+                        cal = float(cal)
+                    except:
+                        cal = 0
                 
+                # Desired filtering: Remove 0 calorie items (pollution/incomplete data)
+                if not cal or float(cal) <= 0:
+                    continue
+
                 results.append({
                     'id': f"off_{code}",
                     'name': p.get('product_name', 'Inconnu'),
