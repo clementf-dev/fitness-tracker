@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const signal = searchController.signal;
 
             searchTimeout = setTimeout(() => {
-                fetch(`/api/food/search/?q=${encodeURIComponent(query)}&local_only=true`, { signal })
+                fetch(`/api/food/search/?q=${encodeURIComponent(query)}&local_only=false`, { signal })
                     .then(response => response.json())
                     .then(data => {
                         displayResults(data.results, resultsDiv, input, hiddenInput);
