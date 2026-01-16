@@ -1,0 +1,168 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Modifier {{ template.name }} - Fitness Tracker{% endblock %}
+
+{% block content %}
+<style>
+    /* Remove arrows/spinners from number inputs */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        appearance: none;
+        margin: 0;
+    }
+
+    input[type=number] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+</style>
+<script>
+    function toggleEdit(itemId) {
+        const infoSpan = document.getElementById('info-' + itemId);
+        const buttonsDiv = document.getElementById('buttons-' + itemId);
+        const form = document.getElementById('edit-form-' + itemId);
+
+        if (form.style.display === 'none') {
+            form.style.display = 'flex';
+            buttonsDiv.style.display = 'none';
+        } else {
+            form.style.display = 'none';
+            buttonsDiv.style.display = 'block';
+        }
+    }
+</script>
+<div class="animate-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="font-weight: 700; font-size: 2rem;">✏️ {{ template.name }}</h1>
+        <a href="{% url 'meal_templates' %}" class="btn btn-primary">← Retour</a>
+    </div>
+
+    <div class="row">
+        <!-- Modifier les infos du template -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" class="d-flex gap-3 align-items-end">
+                        {% csrf_token %}
+                        <div class="flex-grow-1">
+                            <label class="form-label" style="color: #ffffff;">Nom du repas type</label>
+                            {{ template_form.name }}
+                        </div>
+                        <div style="min-width: 200px;">
+                            <label class="form-label" style="color: #ffffff;">Repas suggéré</label>
+                            {{ template_form.meal_type }}
+                        </div>
+                        <button type="submit" name="update_template" class="btn btn-primary">Enregistrer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des éléments actuels -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3" style="color: #ffffff;">Éléments du repas type</h5>
+
+                    {% if items %}
+                    <ul class="list-group list-group-flush">
+                        {% for item in items %}
+                        <li class="list-group-item"
+                            style="background: transparent; border-color: rgba(255,255,255,0.1);">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong style="color: #ffffff;">{{ item.food.name }}</strong>
+                                    <br>
+                                    <span id="info-{{ item.id }}">
+                                        <small style="color: #ffffff;">
+                                            {{ item.quantity }} portion(s) •
+                                            {{ item.total_calories }} kcal
+                                        </small>
+                                    </span>
+                                </div>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <div id="buttons-{{ item.id }}">
+                                        <button type="button" class="btn btn-sm btn-outline-info"
+                                            onclick="toggleEdit('{{ item.id }}')">✏️</button>
+                                        <form method="post" action="{% url 'delete_template_item' item_id=item.id %}"
+                                            style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">🗑️</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Inline Edit Form -->
+                            <form id="edit-form-{{ item.id }}" method="post"
+                                action="{% url 'edit_template_item' item_id=item.id %}"
+                                class="mt-2 align-items-center gap-2" style="display: none;">
+                                {% csrf_token %}
+                                <div class="d-flex gap-2">
+                                    <input type="number" name="quantity" class="form-control form-control-sm"
+                                        value="{{ item.quantity }}" step="0.01" min="0.01"
+                                        style="width: 100px; background-color: #2b2d42; color: #fff; border-color: rgba(255,255,255,0.1);">
+                                    <button type="submit" class="btn btn-sm btn-success">✔️</button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        onclick="toggleEdit('{{ item.id }}')">❌</button>
+                                </div>
+                            </form>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p style="color: #ffffff;" class="text-center py-3">Aucun aliment ajouté</p>
+                    {% endif %}
+
+                    <!-- Résumé -->
+                    <div class="mt-3 pt-3 border-top" style="border-color: rgba(255,255,255,0.1) !important;">
+                        <div class="d-flex justify-content-between">
+                            <span style="color: #ffffff;">Total:</span>
+                            <span>
+                                <strong style="color: #f5576c;">{{ template.total_calories }} kcal</strong> •
+                                <span style="color: #e74c3c;">P {{ template.total_protein|floatformat:0 }}g</span> •
+                                <span style="color: #3498db;">G {{ template.total_carbs|floatformat:0 }}g</span> •
+                                <span style="color: #f39c12;">L {{ template.total_fat|floatformat:0 }}g</span> •
+                                <span style="color: #2ecc71;">F {{ template.total_fiber|floatformat:0 }}g</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ajouter un élément -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3" style="color: #ffffff;">Ajouter un aliment</h5>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Aliment</label>
+                            {{ form.food }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Quantité (portions)</label>
+                            {{ form.quantity }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">➕ Ajouter au repas type</button>
+                    </form>
+
+                    <hr style="border-color: rgba(255,255,255,0.1);">
+
+                    <p style="color: #ffffff;" class="small">
+                        Vous n'avez pas l'aliment voulu ?
+                        <a href="{% url 'add_food' %}">Ajouter un nouvel aliment</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

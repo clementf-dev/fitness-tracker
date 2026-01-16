@@ -1,0 +1,78 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Repas types - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="font-weight: 700; font-size: 2rem;">📋 Repas types</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'add_meal_template' %}" class="btn btn-primary">➕ Nouveau repas type</a>
+            <a href="{% url 'calories_dashboard' %}" class="btn btn-primary">← Retour</a>
+        </div>
+    </div>
+
+    <p style="color: #ffffff;" class="mb-4">Créez des repas types pour les ajouter rapidement à votre suivi quotidien.
+    </p>
+
+    <div class="row">
+        {% for template in templates %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title" style="color: #ffffff;">{{ template.name }}</h5>
+                    <p style="color: #ffffff;" class="mb-3">{{ template.get_meal_type_display }}</p>
+
+                    <!-- Liste des éléments -->
+                    {% if template.template_items.all %}
+                    <ul class="list-unstyled mb-3">
+                        {% for item in template.template_items.all %}
+                        <li class="mb-1">
+                            <small style="color: #ffffff;">{{ item.food.name }} x{{ item.quantity }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p style="color: #ffffff;" class="small">Aucun aliment ajouté</p>
+                    {% endif %}
+
+                    <!-- Résumé nutritionnel -->
+                    <div class="d-flex justify-content-between mb-3 small">
+                        <span style="color: #f5576c;"><strong>{{ template.total_calories }}</strong> kcal</span>
+                        <span style="color: #e74c3c;">P: {{ template.total_protein|floatformat:0 }}g</span>
+                        <span style="color: #3498db;">G: {{ template.total_carbs|floatformat:0 }}g</span>
+                        <span style="color: #f39c12;">L: {{ template.total_fat|floatformat:0 }}g</span>
+                        <span style="color: #2ecc71;">F: {{ template.total_fiber|floatformat:0 }}g</span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'edit_meal_template' template_id=template.id %}" class="btn btn-sm flex-grow-1"
+                            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: #fff;">
+                            ✏️ Modifier
+                        </a>
+                        <form method="post" action="{% url 'delete_meal_template' template_id=template.id %}"
+                            style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm"
+                                style="background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #8b5cf6;"
+                                title="Supprimer ce repas type">
+                                🗑️
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <p class="mb-3">Vous n'avez pas encore de repas type.</p>
+                    <a href="{% url 'add_meal_template' %}" class="btn btn-primary">Créer votre premier repas type</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

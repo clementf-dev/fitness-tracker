@@ -1,0 +1,60 @@
+from django.core.management.base import BaseCommand
+from tracker.models import WeightEntry
+from datetime import datetime
+import os
+
+class Command(BaseCommand):
+    help = 'Import weight data from a text file'
+
+    def add_arguments(self, parser):
+        parser.add_argument('file_path', type=str, help='Path to the data file')
+
+    def handle(self, *args, **kwargs):
+        file_path = kwargs['file_path']
+        
+        if not os.path.exists(file_path):
+            self.stdout.write(self.style.ERROR(f'File not found: {file_path}'))
+            return
+
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+
+        count_created = 0
+        count_updated = 0
+        count_skipped = 0
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            parts = line.split()
+            if len(parts) < 2:
+                # Need at least date and weight. If weight is missing (len == 1), skip.
+                self.stdout.write(self.style.WARNING(f'Skipping invalid line (no weight): {line}'))
+                count_skipped += 1
+                continue
+            
+            date_str = parts[0]
+            weight_str = parts[1]
+
+            try:
+                # Parse date dd/mm
+                date_obj = datetime.strptime(f"{date_str}/2025", "%d/%m/%Y").date()
+                weight = float(weight_str)
+
+                entry, created = WeightEntry.objects.update_or_create(
+                    date=date_obj,
+                    defaults={'weight': weight}
+                )
+
+                if created:
+                    count_created += 1
+                else:
+                    count_updated += 1
+                    
+            except ValueError as e:
+                self.stdout.write(self.style.ERROR(f'Error parsing line "{line}": {e}'))
+                count_skipped += 1
+
+        self.stdout.write(self.style.SUCCESS(f'Import finished. Created: {count_created}, Updated: {count_updated}, Skipped: {count_skipped}'))

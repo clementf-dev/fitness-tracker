@@ -1,0 +1,173 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Banque d'aliments - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="font-weight: 700; font-size: 2rem;">📚 Banque d'aliments</h1>
+        <div class="d-flex gap-2">
+            <a href="{% url 'add_food' %}" class="btn btn-primary">➕ Ajouter un aliment</a>
+            <a href="{% url 'calories_dashboard' %}" class="btn btn-primary">← Retour</a>
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="d-flex gap-2 align-items-center">
+                <input type="text" name="q" class="form-control" placeholder="Rechercher un aliment..."
+                    value="{{ query }}">
+                <button type="submit" class="btn btn-primary"
+                    style="height: 50px; display: flex; align-items: center;">🔍 Rechercher</button>
+                {% if query %}
+                <a href="{% url 'food_database' %}" class="btn btn-primary"
+                    style="height: 50px; display: flex; align-items: center;">❌ Effacer</a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <p id="food-count" style="color: #ffffff;" class="mb-3">{{ total_foods }} aliment(s) dans la banque</p>
+
+    <!-- Liste des aliments -->
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Aliment</th>
+                        <th>Portion</th>
+                        <th>Calories</th>
+                        <th>Protéines</th>
+                        <th>Glucides</th>
+                        <th>Lipides</th>
+                        <th>Fibres</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="food-table-body">
+                    {% for food in page_obj %}
+                    <tr>
+                        <td>
+                            <strong>{{ food.name }}</strong>
+                            {% if food.brand %}<br><small style="color: #ffffff;">{{ food.brand }}</small>{% endif %}
+                        </td>
+                        <td>{{ food.serving_size }}g</td>
+                        <td><strong style="color: #f5576c;">{{ food.calories }}</strong></td>
+                        <td style="color: #e74c3c;">{{ food.protein }}g</td>
+                        <td style="color: #3498db;">{{ food.carbs }}g</td>
+                        <td style="color: #f39c12;">{{ food.fat }}g</td>
+                        <td style="color: #2ecc71;">{{ food.fiber }}g</td>
+                        <td>
+                            {% if not food.source or food.source == 'Mes Aliments' %}
+                            <a href="{% url 'edit_food' food_id=food.id %}" class="btn btn-sm btn-outline-light">✏️</a>
+                            <form method="post" action="{% url 'delete_food' food_id=food.id %}"
+                                style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    title="Supprimer">🗑️</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4">
+                            <p class="mb-2">Aucun aliment trouvé</p>
+                            <a href="{% url 'add_food' %}" class="btn btn-primary">Ajouter le premier aliment</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="pagination-container">
+        {% if page_obj.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Précédent</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <span class="page-link">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
+                </li>
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Suivant</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.querySelector('input[name="q"]');
+        const tableBody = document.getElementById('food-table-body');
+        const countDisplay = document.getElementById('food-count');
+        const paginationContainer = document.getElementById('pagination-container');
+        const form = searchInput.closest('form');
+
+        let timeout = null;
+
+        searchInput.addEventListener('input', function (e) {
+            clearTimeout(timeout);
+            const query = e.target.value;
+
+            timeout = setTimeout(() => {
+                const url = new URL(window.location.href);
+                url.searchParams.set('q', query);
+                url.searchParams.set('page', 1);
+
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+                        // Update table
+                        const newBody = doc.getElementById('food-table-body');
+                        if (newBody && tableBody) {
+                            tableBody.innerHTML = newBody.innerHTML;
+                        }
+
+                        // Update count
+                        const newCount = doc.getElementById('food-count');
+                        if (newCount && countDisplay) {
+                            countDisplay.innerHTML = newCount.innerHTML;
+                        }
+
+                        // Update pagination
+                        const newPagination = doc.getElementById('pagination-container');
+                        if (newPagination && paginationContainer) {
+                            paginationContainer.innerHTML = newPagination.innerHTML;
+                        }
+
+                        // Update "Effacer" button visibility logic
+                        // If we have a query, and the Effacer button isn't there, we could add it dynamically
+                        // Or easier: update the form content (risky for focus)
+                        // Let's rely on the user reloading or clicking search for the button for now
+                        // OR: check if doc has the button and current form doesn't
+
+                        // Update URL
+                        window.history.pushState({}, '', url);
+                    })
+                    .catch(err => console.error('Search error:', err));
+            }, 300); // 300ms debounce
+        });
+    });
+</script>
+{% endblock %}

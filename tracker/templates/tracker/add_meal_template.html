@@ -1,0 +1,36 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Nouveau repas type - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="font-weight: 700; font-size: 2rem;">➕ Nouveau repas type</h1>
+        <a href="{% url 'meal_templates' %}" class="btn btn-primary">← Retour</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label">Nom du repas type *</label>
+                            {{ form.name }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Type de repas suggéré</label>
+                            {{ form.meal_type }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Créer et ajouter des aliments</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

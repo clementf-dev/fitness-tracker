@@ -1,0 +1,362 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Dashboard - Fitness Tracker{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom Tab Buttons (Purple Gradient for All) */
+    .btn-tab {
+        border: 1px solid #667eea !important;
+        color: #fff !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        transition: all 0.2s ease;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+    }
+
+    .btn-tab:hover,
+    .btn-tab.active {
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        border-color: #667eea !important;
+    }
+</style>
+
+<div class="animate-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="font-weight: 700; font-size: 2.5rem;">📊 Tableau de bord</h1>
+
+        <!-- Sélecteur de période -->
+        <div class="d-flex gap-2" role="group">
+            <button type="button" class="btn btn-tab" onclick="updateChart('30d', this)">30 Jours</button>
+            <button type="button" class="btn btn-tab" onclick="updateChart('3m', this)">3 Mois</button>
+            <button type="button" class="btn btn-tab active" onclick="updateChart('all', this)">Tout</button>
+        </div>
+    </div>
+
+
+</div>
+
+<!-- Statistiques rapides -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-label">Poids actuel</div>
+                <div class="stat-value">
+                    {% if latest_weight %}
+                    {{ latest_weight.weight }} <span style="font-size: 1.5rem;">kg</span>
+                    {% else %}
+                    - <span style="font-size: 1.5rem;">kg</span>
+                    {% endif %}
+                </div>
+                {% if latest_weight %}
+                {% if latest_weight %}
+                <small style="color: #ffffff;">{{ latest_weight.date }}</small>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-label">Moyenne pas/jour</div>
+                <div class="stat-value">{{ avg_steps|default:"0" }}</div>
+                <small style="color: #ffffff;">30 derniers jours</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-label">Séance à la salle</div>
+                <div class="stat-value">{{ total_gym_sessions }}</div>
+                <small style="color: #ffffff;">Total</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <div class="stat-label">Calories hier</div>
+                <div class="stat-value">
+                    {% if yesterday_calories %}
+                    {{ yesterday_calories }}
+                    {% else %}
+                    0
+                    {% endif %}
+                </div>
+                <small style="color: #ffffff;">{{ yesterday_date|date:"d M Y" }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Boutons d'action rapide -->
+<div class="row g-3 row-cols-5 mb-5">
+    <div class="col">
+        <a href="{% url 'add_weight' %}" class="btn btn-primary w-100">➕ Poids</a>
+    </div>
+    <div class="col">
+        <a href="{% url 'add_steps' %}" class="btn btn-primary w-100">👟 Pas</a>
+    </div>
+    <div class="col">
+        <a href="{% url 'gym_calendar' %}" class="btn btn-primary w-100">🏋️ Salle</a>
+    </div>
+    <div class="col">
+        <a href="{% url 'add_cardio' %}" class="btn btn-primary w-100">❤️ Cardio</a>
+    </div>
+    <div class="col">
+        <a href="{% url 'calories_dashboard' %}" class="btn btn-primary w-100">🍽️ Calories</a>
+    </div>
+</div>
+
+<!-- Graphique Unifié -->
+<div class="row g-4">
+    <div class="col-12">
+        <div class="card" style="height: 500px;">
+            <div class="card-body">
+                <h5 class="card-title mb-4" style="font-weight: 600; color: #ffffff;">📈 Vue d'ensemble</h5>
+                <div style="height: 400px; position: relative;">
+                    <canvas id="combinedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let myChart = null;
+
+    function initChart() {
+        const ctx = document.getElementById('combinedChart').getContext('2d');
+
+        // Configuration du graphique
+        const config = {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        type: 'line',
+                        label: 'Poids (kg)',
+                        data: [],
+                        order: 1,
+                        yAxisID: 'y', // Left Axis
+                        borderColor: '#f5576c',
+                        backgroundColor: '#f5576c',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Pas (Total journée)',
+                        data: [],
+                        order: 2,
+                        yAxisID: 'y1', // Right Axis
+                        backgroundColor: 'rgba(13, 110, 253, 0.4)',
+                        borderColor: '#0d6efd',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        stack: 'steps'
+                    },
+                    {
+                        label: 'Pas (Cardio Tapis)',
+                        data: [],
+                        order: 3,
+                        yAxisID: 'y1', // Right Axis
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: '#ff9f40',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        stack: 'steps'
+                    },
+                    {
+                        type: 'bar',
+                        label: 'Calories',
+                        data: [],
+                        order: 4,
+                        yAxisID: 'y1', // Right Axis
+                        backgroundColor: 'rgba(155, 89, 182, 0.6)',
+                        borderColor: '#9b59b6',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        type: 'line',
+                        label: '% Graisse',
+                        data: [],
+                        order: 5,
+                        yAxisID: 'y', // Left Axis
+                        borderColor: '#8e44ad',
+                        backgroundColor: '#8e44ad',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4,
+                        hidden: true
+                    },
+                    {
+                        type: 'line',
+                        label: 'Masse Musculaire (kg)',
+                        data: [],
+                        order: 6,
+                        yAxisID: 'y', // Left Axis
+                        borderColor: '#2ecc71',
+                        backgroundColor: '#2ecc71',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4,
+                        hidden: true
+                    },
+                    {
+                        type: 'line',
+                        label: 'Graisse Viscérale',
+                        data: [],
+                        order: 7,
+                        yAxisID: 'y', // Left Axis
+                        borderColor: '#e67e22',
+                        backgroundColor: '#e67e22',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4,
+                        hidden: true
+                    },
+                    {
+                        type: 'line',
+                        label: 'BMR (kcal)',
+                        data: [],
+                        order: 8,
+                        yAxisID: 'y1', // Right Axis
+                        borderColor: '#e74c3c',
+                        backgroundColor: '#e74c3c',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4,
+                        hidden: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'start', // Align to left
+                        labels: { color: '#e0e0e0', boxWidth: 12 }, // Light Gray
+                        onClick: function (e, legendItem, legend) {
+                            // Default behavior (toggle dataset)
+                            const index = legendItem.datasetIndex;
+                            const ci = legend.chart;
+                            if (ci.isDatasetVisible(index)) {
+                                ci.hide(index);
+                                legendItem.hidden = true;
+                            } else {
+                                ci.show(index);
+                                legendItem.hidden = false;
+                            }
+
+                            // Check Axes Visibility after toggle
+                            checkAxesVisibility(ci);
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                if (context.dataset.label === 'Salle de sport') {
+                                    return context.raw.y > 0 ? '🏋️ Séance de sport' : '';
+                                }
+                                return context.dataset.label + ': ' + context.formattedValue;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#e0e0e0' }, // Light Gray
+                        stacked: true
+                    },
+                    y: { // Left Axis: Poids/Fat/Muscle
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        beginAtZero: false,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#e0e0e0' }, // Light Gray
+                        title: { display: true, text: 'Poids (kg) / %', color: '#e0e0e0' } // Light Gray
+                    },
+                    y1: { // Right Axis: Steps / BMR
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: { drawOnChartArea: false },
+                        ticks: { color: '#e0e0e0' }, // Light Gray
+                        title: { display: true, text: 'Pas / BMR', color: '#e0e0e0' }, // Light Gray
+                        stacked: true
+                    }
+                }
+            }
+        };
+
+        myChart = new Chart(ctx, config);
+        updateChart('all', document.querySelector('.d-flex button.active'));
+    }
+
+    function updateChart(range, btnElement) {
+        document.querySelectorAll('.d-flex button').forEach(b => b.classList.remove('active'));
+        if (btnElement) btnElement.classList.add('active');
+
+        fetch(`/api/combined-data/?range=${range}`)
+            .then(response => response.json())
+            .then(data => {
+                myChart.data.labels = data.labels;
+
+                // New Order: 0:Poids, 1:StepsTotal, 2:StepsCardio, 3:Calories, 4:Fat, 5:Mass, 6:Visc, 7:BMR
+
+                myChart.data.datasets[0].data = data.weight;
+                myChart.data.datasets[1].data = data.steps;
+                myChart.data.datasets[2].data = data.steps_cardio || [];
+                myChart.data.datasets[3].data = data.calories || [];
+                myChart.data.datasets[4].data = data.body_fat || [];
+                myChart.data.datasets[5].data = data.muscle_mass || [];
+                myChart.data.datasets[6].data = data.visceral_fat || [];
+                myChart.data.datasets[7].data = data.bmr || [];
+
+                // After data load, check visibility based on current state
+                checkAxesVisibility(myChart);
+            });
+    }
+
+    function checkAxesVisibility(chart) {
+        // New Datasets indices:
+        // y (Left): 0 (Poids), 4 (Fat), 5 (Mass), 6 (Visc)
+        // y1 (Right): 1 (Steps), 2 (StepsCardio), 3 (Calories), 7 (BMR)
+
+        const leftIndices = [0, 4, 5, 6];
+        const rightIndices = [1, 2, 3, 7];
+
+        // Check if ANY of the left datasets are visible
+        const showLeft = leftIndices.some(i => chart.isDatasetVisible(i));
+
+        // Check if ANY of the right datasets are visible
+        const showRight = rightIndices.some(i => chart.isDatasetVisible(i));
+
+        chart.options.scales.y.display = showLeft;
+        chart.options.scales.y1.display = showRight;
+        chart.update(); // Re-render to apply scale changes
+    }
+
+    document.addEventListener('DOMContentLoaded', initChart);
+</script>
+{% endblock %}

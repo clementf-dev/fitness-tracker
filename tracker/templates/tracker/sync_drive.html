@@ -1,0 +1,64 @@
+{% extends 'tracker/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Sync Google Drive - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-cloud-arrow-down"></i> Synchroniser depuis Google Drive
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Cette fonction télécharge automatiquement les fichiers CSV depuis votre dossier 
+                        <strong>FitSync</strong> sur Google Drive et les importe dans l'application.
+                    </p>
+                    
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle"></i> Fichiers attendus :</h6>
+                        <ul class="mb-0">
+                            <li><code>weight_data.csv</code> - Données de poids</li>
+                            <li><code>steps_data.csv</code> - Données de pas</li>
+                        </ul>
+                    </div>
+                    
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-arrow-repeat"></i> Synchroniser maintenant
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Retour au dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Setup Instructions -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Configuration initiale</h5>
+                </div>
+                <div class="card-body">
+                    <p>Pour utiliser la synchronisation automatique :</p>
+                    <ol>
+                        <li>Téléchargez <code>credentials.json</code> depuis Google Cloud Console</li>
+                        <li>Placez-le à la racine du projet fitness-tracker</li>
+                        <li>Lors de la première sync, autorisez l'accès à Google Drive</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

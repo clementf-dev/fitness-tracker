@@ -1,0 +1,1352 @@
+{% extends 'tracker/base.html' %}
+
+{% load static %}
+
+
+
+{% block title %}Suivi Calories - {{ selected_date|date:"d/m/Y" }}{% endblock %}
+
+
+
+{% block extra_css %}
+
+<style>
+    .meal-section {
+
+        background: rgba(255, 255, 255, 0.03);
+
+        border: 1px solid rgba(255, 255, 255, 0.1);
+
+        border-radius: 16px;
+
+        padding: 1.5rem;
+
+        margin-bottom: 1rem;
+
+        scroll-margin-top: 100px;
+
+    }
+
+
+
+    .meal-header {
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        margin-bottom: 1rem;
+
+        padding-bottom: 0.5rem;
+
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    }
+
+
+
+    .meal-title {
+
+        font-size: 1.2rem;
+
+        font-weight: 600;
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 0.5rem;
+
+    }
+
+
+
+    .meal-stats {
+
+        display: flex;
+
+        gap: 1.2rem;
+
+        font-size: 1rem;
+
+        font-weight: 800;
+
+        color: #ffffff;
+
+    }
+
+
+
+    .meal-stats span:nth-child(2) {
+
+        color: #e74c3c;
+
+    }
+
+
+
+    /* P */
+
+    .meal-stats span:nth-child(3) {
+
+        color: #3498db;
+
+    }
+
+
+
+    /* G */
+
+    .meal-stats span:nth-child(4) {
+
+        color: #f39c12;
+
+    }
+
+
+
+    /* L */
+
+    .meal-stats span:nth-child(5) {
+
+        color: #2ecc71;
+
+    }
+
+
+
+    /* F */
+
+
+
+    .meal-item {
+
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        padding: 0.75rem;
+
+        background: rgba(255, 255, 255, 0.02);
+
+        border-radius: 8px;
+
+        margin-bottom: 0.5rem;
+
+    }
+
+
+
+    .meal-item:hover {
+
+        background: rgba(255, 255, 255, 0.05);
+
+    }
+
+
+
+    .item-info {
+
+        display: flex;
+
+        flex-direction: column;
+
+    }
+
+
+
+    .item-name {
+
+        font-weight: 500;
+
+    }
+
+
+
+    .item-macros {
+
+        font-size: 0.8rem;
+
+        color: #ffffff;
+
+    }
+
+
+
+    .item-calories {
+
+        font-weight: 600;
+
+        color: #ffffff;
+
+    }
+
+
+
+    .add-item-form {
+
+        display: flex;
+
+        gap: 0.5rem;
+
+        margin-top: 1rem;
+
+        flex-wrap: wrap;
+
+    }
+
+
+
+    .add-item-form .form-select,
+
+    .add-item-form .form-control {
+
+        flex: 1;
+
+        min-width: 150px;
+
+    }
+
+
+
+    .add-item-form button {
+
+        white-space: nowrap;
+
+    }
+
+
+
+    .summary-card {
+
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+
+        border: 1px solid rgba(102, 126, 234, 0.3);
+
+        border-radius: 16px;
+
+        padding: 2rem;
+
+        text-align: center;
+
+    }
+
+
+
+
+
+    .total-calories {
+        font-size: 1.2rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline;
+    }
+
+    .summary-total-calories {
+        font-size: 3rem;
+        font-weight: 700;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+
+
+    .macro-summary {
+
+        display: flex;
+
+        justify-content: center;
+
+        gap: 2rem;
+
+        margin-top: 1rem;
+
+    }
+
+
+
+    .macro-item {
+
+        text-align: center;
+
+    }
+
+
+
+    .macro-value {
+
+        font-size: 1.5rem;
+
+        font-weight: 600;
+
+    }
+
+
+
+    .macro-label {
+
+        font-size: 0.85rem;
+
+        opacity: 0.8;
+
+    }
+
+
+
+    .macro-protein {
+
+        color: #e74c3c;
+
+    }
+
+
+
+    .macro-carbs {
+
+        color: #3498db;
+
+    }
+
+
+
+    .macro-fat {
+
+        color: #f39c12;
+
+    }
+
+
+
+    .macro-fiber {
+
+        color: #2ecc71;
+
+    }
+
+
+
+    .summary-calories-label {
+
+        color: #ffffff;
+
+        font-weight: 500;
+
+        opacity: 0.8;
+
+    }
+
+
+
+    .date-nav {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 1rem;
+
+    }
+
+
+
+    .date-nav a {
+
+        padding: 0.5rem 1rem;
+
+        border-radius: 8px;
+
+        background: var(--primary-gradient);
+
+        color: #ffffff;
+
+        text-decoration: none;
+
+        transition: all 0.3s;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+
+    }
+
+
+
+    .date-nav a:hover {
+
+        background: rgba(255, 255, 255, 0.1);
+
+    }
+
+
+
+    .current-date {
+
+        font-size: 1.5rem;
+
+        font-weight: 600;
+
+    }
+
+
+
+    .empty-meal {
+
+        text-align: center;
+
+        color: #ffffff;
+
+        padding: 1rem;
+
+        font-style: italic;
+
+    }
+
+
+
+    .quick-actions {
+
+        display: flex;
+
+        gap: 0.5rem;
+
+        margin-bottom: 1.5rem;
+
+        flex-wrap: wrap;
+
+    }
+
+
+
+    .delete-btn {
+
+        background: transparent;
+
+        border: none;
+
+        color: #f5576c;
+
+        cursor: pointer;
+
+        padding: 0.25rem 0.5rem;
+
+        border-radius: 4px;
+
+        transition: all 0.2s;
+
+        text-decoration: none;
+
+        pointer-events: auto;
+
+        position: relative;
+
+        z-index: 10;
+
+    }
+
+
+
+    .delete-btn:hover {
+
+        background: rgba(245, 87, 108, 0.2);
+
+        color: #f5576c;
+
+    }
+
+
+
+    .edit-btn {
+
+        background: transparent;
+
+        border: none;
+
+        color: #4da6ff;
+
+        cursor: pointer;
+
+        padding: 0.25rem 0.5rem;
+
+        border-radius: 4px;
+
+        transition: all 0.2s;
+
+        text-decoration: none;
+
+        margin-right: 0.25rem;
+
+    }
+
+
+
+    .edit-btn:hover {
+
+        background: rgba(77, 166, 255, 0.2);
+
+    }
+
+
+
+    /* Remove arrows/spinners from number inputs */
+
+    input[type=number]::-webkit-inner-spin-button,
+
+    input[type=number]::-webkit-outer-spin-button {
+
+        -webkit-appearance: none;
+
+        appearance: none;
+
+        margin: 0;
+
+    }
+
+
+
+    input[type=number] {
+
+        -moz-appearance: textfield;
+
+        appearance: textfield;
+
+    }
+
+
+
+    .meal-items-list {
+
+        min-height: 20px;
+
+    }
+
+
+
+    .meal-item {
+
+        cursor: grab;
+
+    }
+
+
+
+    .meal-item:active {
+
+        cursor: grabbing;
+
+    }
+
+
+
+    .sortable-ghost {
+
+        opacity: 0.4;
+
+        background: rgba(102, 126, 234, 0.1) !important;
+
+    }
+</style>
+
+<script>
+
+    function toggleEdit(itemId) {
+
+        const infoDiv = document.getElementById('buttons-' + itemId);
+
+        const form = document.getElementById('edit-form-' + itemId);
+
+        const macrosSpan = document.getElementById('macros-' + itemId);
+
+
+
+        if (form.style.display === 'none' || form.style.display === '') {
+
+            macrosSpan.style.display = 'none';
+
+            infoDiv.style.display = 'none';
+
+            form.style.display = 'flex';
+
+
+
+            // Auto-focus input
+
+            const input = form.querySelector('input[name="quantity"]');
+
+            if (input) {
+
+                input.focus();
+
+                input.select();
+
+            }
+
+        } else {
+
+            macrosSpan.style.display = 'inline';
+
+            infoDiv.style.display = 'block';
+
+            form.style.display = 'none';
+
+        }
+
+    }
+
+
+
+    function showSaveTemplateInput(mealCode) {
+
+        const btn = document.getElementById('save-btn-' + mealCode);
+
+        const form = document.getElementById('save-template-form-' + mealCode);
+
+        const input = document.getElementById('template-name-input-' + mealCode);
+
+
+
+        if (btn) btn.style.display = 'none';
+
+        if (form) {
+
+            form.style.display = 'inline-flex';
+
+            form.style.setProperty('display', 'inline-flex', 'important');
+
+        }
+
+        if (input) {
+
+            input.value = '';
+
+            input.focus();
+
+        }
+
+    }
+
+
+
+    function hideSaveTemplateInput(mealCode) {
+
+        const btn = document.getElementById('save-btn-' + mealCode);
+
+        const form = document.getElementById('save-template-form-' + mealCode);
+
+
+
+        if (btn) btn.style.display = 'inline-block';
+
+        if (form) {
+
+            form.style.display = 'none';
+
+            form.style.setProperty('display', 'none', 'important');
+
+        }
+
+    }
+
+</script>
+
+<script src="{% static 'tracker/js/food_autocomplete.js' %}"></script>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="animate-in">
+
+    <!-- Header avec navigation de date -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h1 style="font-weight: 700; font-size: 2rem;">📊 Suivi des Repas</h1>
+
+
+
+        <div class="date-nav">
+
+            <a href="{% url 'calories_dashboard_date' date_str=prev_date|date:'Y-m-d' %}">← Précédent</a>
+
+
+
+            <span class="current-date">{{ selected_date|date:"d M Y" }}</span>
+
+            <a href="{% url 'calories_dashboard_date' date_str=next_date|date:'Y-m-d' %}">Suivant →</a>
+
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- Actions rapides -->
+
+    <div class="quick-actions">
+
+        <a href="{% url 'food_database' %}" class="btn btn-primary">🍽️ Banque d'aliments</a>
+
+        <a href="{% url 'add_food' %}" class="btn btn-primary">➕ Nouvel aliment</a>
+
+        <a href="{% url 'meal_templates' %}" class="btn btn-primary">📋 Repas types</a>
+
+        <a href="{% url 'calories_calendar' %}" class="btn btn-primary">📅 Calendrier</a>
+
+
+
+    </div>
+
+
+
+    <div class="row">
+
+        <!-- Colonne principale: Repas -->
+
+        <div class="col-lg-8">
+
+            {% for meal in meals_data %}
+
+            <div class="meal-section" id="meal-{{ meal.code }}">
+
+                <div class="meal-header">
+
+                    <div class="meal-title">
+
+                        <span>{{ meal.icon }}</span>
+
+                        <span>{{ meal.name }}</span>
+
+                        <!-- Save as Template Button -->
+
+                        <button type="button" class="btn btn-sm btn-link text-muted p-0 ms-2"
+                            title="Sauvegarder en modèle" onclick="showSaveTemplateInput('{{ meal.code }}')"
+                            id="save-btn-{{ meal.code }}" style="text-decoration: none; font-size: 1rem;">
+                            💾
+                        </button>
+
+                        <!-- Inline Save Form (hidden by default) -->
+
+                        <form id="save-template-form-{{ meal.code }}" method="post"
+                            action="{% url 'save_meal_as_template' date_str=selected_date|date:'Y-m-d' meal_type=meal.code %}"
+                            class="d-inline-flex align-items-center gap-1 ms-2" style="display: none !important;">
+
+                            {% csrf_token %}
+
+                            <input type="text" name="template_name" id="template-name-input-{{ meal.code }}"
+                                class="form-control form-control-sm" placeholder="Nom du modèle..."
+                                style="width: 150px; background-color: #2b2d42; color: #fff; border-color: rgba(255,255,255,0.2);"
+                                required>
+
+                            <button type="submit" class="btn btn-sm btn-success">✔️</button>
+
+                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                onclick="hideSaveTemplateInput('{{ meal.code }}')">❌</button>
+
+                        </form>
+
+                    </div>
+
+                    <div class="meal-stats" id="stats-{{ meal.code }}">
+
+                        <span id="stats-{{ meal.code }}-calories">{{ meal.calories }} kcal</span>
+
+                        <span id="stats-{{ meal.code }}-protein">P: {{ meal.protein }}g</span>
+
+                        <span id="stats-{{ meal.code }}-carbs">G: {{ meal.carbs }}g</span>
+
+                        <span id="stats-{{ meal.code }}-fat">L: {{ meal.fat }}g</span>
+
+                        <span id="stats-{{ meal.code }}-fiber">F: {{ meal.fiber }}g</span>
+
+                    </div>
+
+                </div>
+
+
+
+                {% if meal.items %}
+
+                <div class="meal-items-list" data-meal-type="{{ meal.code }}">
+
+                    {% for item in meal.items %}
+
+                    <div class="meal-item" data-id="{{ item.id }}">
+
+                        <div class="item-info">
+
+                            <span class="item-name">{{ item.food.name }}</span>
+
+                            <span class="item-macros" id="macros-{{ item.id }}">
+
+                                <span id="quantity-text-{{ item.id }}">{{ item.quantity }}</span> portion(s) ×
+
+                                P: {{ item.total_protein|floatformat:1 }}g |
+
+                                G: {{ item.total_carbs|floatformat:1 }}g |
+
+                                L: {{ item.total_fat|floatformat:1 }}g |
+
+                                F: {{ item.total_fiber|floatformat:1 }}g
+
+                            </span>
+
+
+
+                        </div>
+
+
+
+                        <div class="d-flex align-items-center gap-2">
+
+                            <span class="item-calories">
+                                <span class="total-calories">{{ item.total_calories }}</span> kcal
+                            </span>
+
+                            <div id="buttons-{{ item.id }}">
+
+                                <button type="button" class="edit-btn" onclick="toggleEdit('{{ item.id }}')"
+                                    title="Modifier">✏️</button>
+
+                                <form method="post" action="{% url 'delete_meal_item' item_id=item.id %}"
+                                    style="display: inline;">
+
+                                    {% csrf_token %}
+
+                                    <button type="submit" class="delete-btn" title="Supprimer">🗑️</button>
+
+                                </form>
+
+                            </div>
+
+
+
+                            <!-- Inline Edit Form (Hidden by default) -->
+
+                            <form id="edit-form-{{ item.id }}" method="post"
+                                action="{% url 'edit_meal_item' item_id=item.id %}" style="display: none;"
+                                class="align-items-center gap-2">
+
+                                {% csrf_token %}
+
+                                <input type="number" name="quantity" class="form-control form-control-sm"
+                                    value="{{ item.quantity }}" step="0.01" min="0.01"
+                                    style="width: 80px; background-color: #2b2d42; color: #fff; border-color: rgba(255,255,255,0.1);">
+
+                                <button type="submit" class="btn btn-sm btn-success">✏️</button>
+
+                                <button type="button" class="btn btn-sm btn-outline-light"
+                                    onclick="toggleEdit('{{ item.id }}')">&#10007;</button>
+
+                            </form>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                {% else %}
+
+                <p class="empty-meal">Aucun aliment ajouté</p>
+
+                {% endif %}
+
+
+
+                <!-- Formulaire d'ajout rapide -->
+
+                <form method="post"
+                    action="{% url 'add_meal_item' date_str=selected_date|date:'Y-m-d' meal_type=meal.code %}"
+                    class="add-item-form">
+
+                    {% csrf_token %}
+
+                    <div style="position: relative; flex: 1; min-width: 200px;">
+
+                        <input type="text" class="form-control food-search-input" placeholder="Rechercher un aliment..."
+                            autocomplete="off"
+                            style="background-color: #2b2d42; color: #ffffff; border-color: rgba(255, 255, 255, 0.1);">
+
+                        <input type="hidden" name="food" class="selected-food-id" required>
+
+                        <div class="autocomplete-results"
+                            style="position: absolute; top: 100%; left: 0; right: 0; background: #1a1c2e; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; max-height: 300px; overflow-y: auto; display: none; z-index: 1000; margin-top: 4px;">
+
+                        </div>
+
+                    </div>
+
+                    <input type="number" name="quantity" class="form-control" value="1" min="0.01" step="0.01"
+                        style="max-width: 100px;" required>
+
+                    <button type="submit" class="btn btn-primary">+ Ajouter</button>
+
+                </form>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+
+
+        <!-- Colonne latérale: Résumé -->
+
+        <div class="col-lg-4">
+
+            <div class="summary-card mb-4">
+
+                <div class="summary-total-calories" id="day-stats-calories">{{ total_calories }}</div>
+
+                <div class="summary-calories-label">calories</div>
+
+
+
+                <div class="d-flex align-items-center justify-content-between mt-4">
+
+                    <!-- Macros List -->
+
+                    <div class="macro-summary flex-grow-1"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+
+                        <div class="macro-item macro-protein">
+
+                            <div class="macro-value" id="day-stats-protein">{{ total_protein }}</div>
+
+                            <div class="macro-label">Protéines (g)</div>
+
+                            <div class="small" style="font-size: 0.8rem; color: #e74c3c;">{{ prot_per_kg }} g/kg</div>
+
+                        </div>
+
+                        <div class="macro-item macro-carbs">
+
+                            <div class="macro-value" id="day-stats-carbs">{{ total_carbs }}</div>
+
+                            <div class="macro-label">Glucides (g)</div>
+
+                            <div class="small" style="font-size: 0.8rem; color: #3498db;">{{ carbs_per_kg }} g/kg</div>
+
+                        </div>
+
+                        <div class="macro-item macro-fat">
+
+                            <div class="macro-value" id="day-stats-fat">{{ total_fat }}</div>
+
+                            <div class="macro-label">Lipides (g)</div>
+
+                            <div class="small" style="font-size: 0.8rem; color: #f39c12;">{{ fat_per_kg }} g/kg</div>
+
+                        </div>
+
+                        <div class="macro-item macro-fiber">
+
+                            <div class="macro-value" id="day-stats-fiber">{{ total_fiber }}</div>
+
+                            <div class="macro-label">Fibres (g)</div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Pie Chart with Legend -->
+
+                    <div class="d-flex flex-column align-items-center" style="margin-left: 1rem;">
+
+                        <div style="width: 100px; height: 100px;">
+
+                            <canvas id="macroChart"></canvas>
+
+                        </div>
+
+                        <div id="macroLegend" class="mt-2" style="font-size: 0.75rem;"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Divider -->
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 1.5rem 0;">
+
+
+
+            <!-- Appliquer un repas type (Inside Summary Card) -->
+
+            {% if templates %}
+
+            <div>
+
+                <h5 class="card-title mb-3" style="color: #ffffff; font-size: 1rem;">✏️ Ajouter un repas type</h5>
+
+                {% for template in templates %}
+
+                <form method="post" action="{% url 'apply_template' template_id=template.id %}"
+                    class="d-flex gap-2 mb-2">
+
+                    {% csrf_token %}
+
+                    <input type="hidden" name="date" value="{{ selected_date|date:'Y-m-d' }}">
+
+                    <select name="meal_type" class="form-select form-select-sm"
+                        style="max-width: 140px; background-color: #2b2d42; color: #ffffff; border-color: rgba(255, 255, 255, 0.1);">
+
+                        {% for meal in meals_data %}
+
+                        <option value="{{ meal.code }}" {% if meal.code == template.meal_type %}selected{% endif %}>
+
+                            {{ meal.name }}
+
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    <button type="submit" class="btn btn-sm btn-primary flex-grow-1">
+
+                        {{ template.name }} ({{ template.total_calories }} kcal)
+
+                    </button>
+
+                </form>
+
+                {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const lists = document.querySelectorAll('.meal-items-list');
+
+
+
+        lists.forEach(list => {
+
+            new Sortable(list, {
+
+                group: 'meal-items',
+
+                animation: 150,
+
+                ghostClass: 'sortable-ghost',
+
+                filter: '.edit-btn, .delete-btn, input, button, a',
+
+                preventOnFilter: false,
+
+                onEnd: function (evt) {
+
+                    const itemEl = evt.item;
+
+                    const targetList = evt.to;
+
+                    const newMealType = targetList.getAttribute('data-meal-type');
+
+                    const itemId = itemEl.getAttribute('data-id');
+
+
+
+                    // Collect IDs in new order
+
+                    const newOrder = Array.from(targetList.querySelectorAll('.meal-item'))
+
+                        .map(el => el.getAttribute('data-id'));
+
+
+
+                    // Send to backend
+
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+
+                    console.log('Sending update order:', { itemId, newMealType, newOrder });
+
+
+
+                    fetch('{% url "update_meal_item_order" %}', {
+
+                        method: 'POST',
+
+                        headers: {
+
+                            'Content-Type': 'application/json',
+
+                            'X-CSRFToken': csrfToken
+
+                        },
+
+                        body: JSON.stringify({
+
+                            item_id: itemId,
+
+                            new_meal_type: newMealType,
+
+                            new_order: newOrder
+
+                        })
+
+                    })
+
+                        .then(response => response.json())
+
+                        .then(data => {
+
+                            if (data.status === 'success') {
+
+                                // Mettre é jour les stats journaliéres
+
+                                const daily = data.daily_stats;
+
+                                const dayCal = document.getElementById('day-stats-calories');
+
+                                const dayProt = document.getElementById('day-stats-protein');
+
+                                const dayCarb = document.getElementById('day-stats-carbs');
+
+                                const dayFat = document.getElementById('day-stats-fat');
+
+                                const dayFib = document.getElementById('day-stats-fiber');
+
+
+
+                                if (dayCal) dayCal.textContent = daily.calories;
+
+                                if (dayProt) dayProt.textContent = daily.protein;
+
+                                if (dayCarb) dayCarb.textContent = daily.carbs;
+
+                                if (dayFat) dayFat.textContent = daily.fat;
+
+                                if (dayFib) dayFib.textContent = daily.fiber;
+
+
+
+                                // Mettre é jour les stats de chaque repas
+
+                                for (const [mCode, stats] of Object.entries(data.meal_stats)) {
+
+                                    const mCal = document.getElementById(`stats-${mCode}-calories`);
+
+                                    const mProt = document.getElementById(`stats-${mCode}-protein`);
+
+                                    const mCarb = document.getElementById(`stats-${mCode}-carbs`);
+
+                                    const mFat = document.getElementById(`stats-${mCode}-fat`);
+
+                                    const mFib = document.getElementById(`stats-${mCode}-fiber`);
+
+
+
+                                    if (mCal) mCal.textContent = `${stats.calories} kcal`;
+
+                                    if (mProt) mProt.textContent = `P: ${stats.protein}g`;
+
+                                    if (mCarb) mCarb.textContent = `G: ${stats.carbs}g`;
+
+                                    if (mFat) mFat.textContent = `L: ${stats.fat}g`;
+
+                                    if (mFib) mFib.textContent = `F: ${stats.fiber}g`;
+
+                                }
+
+                            } else {
+
+                                console.error('Error updating order:', data.message);
+
+                                alert('Erreur lors du déplacement de l\'élément.');
+
+                            }
+
+                        });
+
+                }
+
+            });
+
+        });
+
+    });
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // Macro Pie Chart
+
+        const ctx = document.getElementById('macroChart');
+
+        if (ctx) {
+
+            const totalProt = parseFloat('{{ total_protein }}'.replace(',', '.'));
+
+            const totalCarbs = parseFloat('{{ total_carbs }}'.replace(',', '.'));
+
+            const totalFat = parseFloat('{{ total_fat }}'.replace(',', '.'));
+
+            const total = totalProt + totalCarbs + totalFat;
+
+
+
+            const protPct = total > 0 ? Math.round((totalProt / total) * 100) : 0;
+
+            const carbsPct = total > 0 ? Math.round((totalCarbs / total) * 100) : 0;
+
+            const fatPct = total > 0 ? Math.round((totalFat / total) * 100) : 0;
+
+
+
+            new Chart(ctx, {
+
+                type: 'doughnut',
+
+                data: {
+
+                    labels: ['Prot', 'Gluc', 'Lip'],
+
+                    datasets: [{
+
+                        data: [totalProt, totalCarbs, totalFat],
+
+                        backgroundColor: [
+
+                            '#e74c3c', // Rouge Protéine
+
+                            '#3498db', // Bleu Glucides
+
+                            '#f39c12'  // Orange Lipides
+
+                        ],
+
+                        borderWidth: 0,
+
+                        hoverOffset: 4
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    maintainAspectRatio: false,
+
+                    cutout: '65%',
+
+                    plugins: {
+
+                        legend: {
+
+                            display: false
+
+                        },
+
+                        tooltip: {
+
+                            enabled: false
+
+                        }
+
+                    }
+
+                }
+
+            });
+
+
+
+            // Generate custom legend
+
+            const legendDiv = document.getElementById('macroLegend');
+
+            if (legendDiv) {
+
+                legendDiv.innerHTML = `
+
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+
+                        <div style="display: flex; align-items: center; gap: 3px;">
+
+                            <span style="width: 10px; height: 10px; background: #e74c3c; display: inline-block;"></span>
+
+                            <span style="color: #fff;">P ${protPct}%</span>
+
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 3px;">
+
+                            <span style="width: 10px; height: 10px; background: #3498db; display: inline-block;"></span>
+
+                            <span style="color: #fff;">G ${carbsPct}%</span>
+
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 3px;">
+
+                            <span style="width: 10px; height: 10px; background: #f39c12; display: inline-block;"></span>
+
+                            <span style="color: #fff;">L ${fatPct}%</span>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+    });
+
+</script>
+
+<script src="{% static 'tracker/js/food_autocomplete.js' %}"></script>
+
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Modifier la portion - Fitness Tracker{% endblock %}
+
+{% block content %}
+<div class="animate-in">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4" style="color: #ffffff;">✏️ Modifier la portion</h5>
+
+                    <div class="mb-4 text-center">
+                        <h3 class="mb-1" style="color: #ffffff; font-weight: 600;">{{ item.food.name }}</h3>
+                        <p class="text-muted mb-0 small">{{ item.food.brand }}</p>
+                        <p style="color: #f5576c; margin-top: 0.5rem;">
+                            {{ item.total_calories }} kcal
+                            <span class="small text-muted">(actuel)</span>
+                        </p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label class="form-label">Quantité (portions)</label>
+                            {{ form.quantity }}
+                            <div class="form-text text-white-50">
+                                1 portion = {{ item.food.serving_size }}g (si renseigné)
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                💾 Enregistrer
+                            </button>
+                            <a href="{% url 'calories_dashboard_date' date_str=date_str %}#meal-{{ item.meal_type }}"
+                                class="btn btn-outline-light">
+                                Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

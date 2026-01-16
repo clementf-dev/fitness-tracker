@@ -1,0 +1,266 @@
+[
+  {
+    "name": "Banane",
+    "ciqual_name": "Banane plantain, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.28,
+      "carbs": 29.6,
+      "fat": 0.39,
+      "fiber": 2.3
+    }
+  },
+  {
+    "name": "Pamplemousse",
+    "ciqual_name": "Pamplemousse chinois, pulpe, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 0.76,
+      "carbs": 8.62,
+      "fat": 0.04,
+      "fiber": 1.0
+    }
+  },
+  {
+    "name": "Pêche",
+    "ciqual_name": "Pêche, pulpe et peau, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.08,
+      "carbs": 9.0,
+      "fat": 0.33,
+      "fiber": 1.6
+    }
+  },
+  {
+    "name": "Nectarine",
+    "ciqual_name": "Nectarine ou brugnon, pulpe et peau, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.16,
+      "carbs": 8.9,
+      "fat": 0.31,
+      "fiber": 1.7
+    }
+  },
+  {
+    "name": "Oignon",
+    "ciqual_name": "Oignon, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.1,
+      "carbs": 6.25,
+      "fat": 0.62,
+      "fiber": 1.7
+    }
+  },
+  {
+    "name": "Poivron rouge",
+    "ciqual_name": "Poivron, vert, jaune ou rouge, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 0.8,
+      "carbs": 4.55,
+      "fat": 0.27,
+      "fiber": 1.5
+    }
+  },
+  {
+    "name": "Poivron vert",
+    "ciqual_name": "Poivron, vert, jaune ou rouge, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 0.8,
+      "carbs": 4.55,
+      "fat": 0.27,
+      "fiber": 1.5
+    }
+  },
+  {
+    "name": "Aubergine",
+    "ciqual_name": "Aubergine, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.12,
+      "carbs": 2.39,
+      "fat": 0.14,
+      "fiber": 2.7
+    }
+  },
+  {
+    "name": "Brocoli",
+    "ciqual_name": "Brocoli, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 3.95,
+      "carbs": 1.7,
+      "fat": 0.48,
+      "fiber": 2.9
+    }
+  },
+  {
+    "name": "Épinard (frais)",
+    "ciqual_name": "Épinard, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 2.62,
+      "carbs": 2.25,
+      "fat": 0.5,
+      "fiber": 2.37
+    }
+  },
+  {
+    "name": "Salade (laitue)",
+    "ciqual_name": "Salade ou chicorée frisée, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.48,
+      "carbs": 2.4,
+      "fat": 0.25,
+      "fiber": 2.45
+    }
+  },
+  {
+    "name": "Haricot vert",
+    "ciqual_name": "Haricot vert, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.85,
+      "carbs": 4.14,
+      "fat": 0.21,
+      "fiber": 2.85
+    }
+  },
+  {
+    "name": "Petit pois",
+    "ciqual_name": "Petits pois, crus",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 5.84,
+      "carbs": 7.0,
+      "fat": 0.55,
+      "fiber": 5.5
+    }
+  },
+  {
+    "name": "Maïs",
+    "ciqual_name": "Maïs doux, en épis, surgelé, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 3.36,
+      "carbs": 17.0,
+      "fat": 1.19,
+      "fiber": 2.65
+    }
+  },
+  {
+    "name": "Betterave",
+    "ciqual_name": "Betterave rouge, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.74,
+      "carbs": 9.1,
+      "fat": 0.24,
+      "fiber": 2.55
+    }
+  },
+  {
+    "name": "Asperge",
+    "ciqual_name": "Asperge, pelée, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 2.04,
+      "carbs": 2.4,
+      "fat": 0.21,
+      "fiber": 1.95
+    }
+  },
+  {
+    "name": "Artichaut",
+    "ciqual_name": "Artichaut, cru",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 3.2,
+      "carbs": 4.92,
+      "fat": 0.18,
+      "fiber": 5.4
+    }
+  },
+  {
+    "name": "Thon (frais, cru)",
+    "ciqual_name": "Thon, cru",
+    "nutrients": {
+      "calories": 144.0,
+      "protein": 24.0,
+      "carbs": 0.0,
+      "fat": 5.38,
+      "fiber": 0.0
+    }
+  },
+  {
+    "name": "Lait entier",
+    "ciqual_name": "Laitue, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.3,
+      "carbs": 1.33,
+      "fat": 0.2,
+      "fiber": 1.2
+    }
+  },
+  {
+    "name": "Lait demi-écrémé",
+    "ciqual_name": "Laitue, crue",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 1.3,
+      "carbs": 1.33,
+      "fat": 0.2,
+      "fiber": 1.2
+    }
+  },
+  {
+    "name": "Amande",
+    "ciqual_name": "Amande (avec peau)",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 18.8,
+      "carbs": 9.51,
+      "fat": 51.3,
+      "fiber": 12.5
+    }
+  },
+  {
+    "name": "Noix",
+    "ciqual_name": "Noix de coco, amande mûre, fraîche",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 3.33,
+      "carbs": 6.22,
+      "fat": 33.5,
+      "fiber": 9.0
+    }
+  },
+  {
+    "name": "Noisette",
+    "ciqual_name": "Noisette",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 14.4,
+      "carbs": 7.16,
+      "fat": 56.9,
+      "fiber": 11.6
+    }
+  },
+  {
+    "name": "Cacahuète",
+    "ciqual_name": "Cacahuète ou Arachide",
+    "nutrients": {
+      "calories": 0.0,
+      "protein": 22.8,
+      "carbs": 14.8,
+      "fat": 49.1,
+      "fiber": 8.6
+    }
+  }
+]
