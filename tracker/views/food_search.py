@@ -21,7 +21,8 @@ def food_database(request):
     if query:
         # Use optimized search service (Accent insensitive for user foods)
         search_service = get_food_search_service()
-        foods = search_service.search(query, limit=100, local_only=True)
+        # Changed to local_only=False to allow API results in the main list too
+        foods = search_service.search(query, limit=100, local_only=False)
     else:
         foods = Food.objects.all().order_by('name')
     
