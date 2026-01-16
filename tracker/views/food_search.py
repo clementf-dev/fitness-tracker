@@ -203,7 +203,6 @@ def _search_off_api(query: str, limit: int = 10) -> list:
             'page_size': limit,
             'fields': 'code,product_name,brands,nutriments,countries,categories,last_modified_t'
         }
-        }
         headers = {'User-Agent': 'FitnessTrackerApp - Version 1.0'}
         # Increased timeout to 10s to avoid failure on slow pythonanywhere connection
         response = requests.get(url, params=params, headers=headers, timeout=10)
